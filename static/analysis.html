@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">EasyFitAnalysis</a>
+        </div>
+    </nav>
+
+    <div id="graphs" class="container p-1 p-md-0">
+
+        <div class="row">
+
+            <div class="col-12 col-md-6">
+                <canvas id="Mon"></canvas>
+
+            </div>
+            <div class="col-12 col-md-6">
+                <canvas id="Tue"></canvas>
+
+            </div>
+
+            <div class="col-12 col-md-6">
+                <canvas id="Wed"></canvas>
+
+            </div>
+            <div class="col-12 col-md-6">
+
+                <canvas id="Thur"></canvas>
+            </div>
+
+            <div class="col-12 col-md-6">
+
+                <canvas id="Fri"></canvas>
+
+            </div>
+            <div class="col-12 col-md-6">
+                <canvas id="Sat"></canvas>
+
+            </div>
+            <div class="col-12 col-md-6">
+                <canvas id="Sun"></canvas>
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        // const axios = require("axios")
+        const label = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"]
+
+        axios.get("/analysisResults").then(function (response) {
+            drawCharts(response.data);
+        })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+
+
+        function drawCharts(data) {
+
+            console.log(data)
+
+            label.forEach(function (value, i) {
+                const graph_data = {
+                    labels: Object.keys(data[i]),
+                    datasets: [{
+                        label: "Usage",
+                        data: data[i],
+                        backgroundColor: 'green',
+                    }]
+                }
+
+                const config = {
+                    type: 'bar',
+                    data: graph_data,
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: value,
+                            },
+                        }
+                    },
+                }
+
+
+                const myChart = new Chart(
+                    document.getElementById(value),
+                    config,
+                );
+
+            })
+        }
+
+
+    </script>
+
+
+</body>
+
+<style>
+    @media screen and (min-width: 768px) {
+        #graphs {
+            padding: 2em;
+        }
+
+
+        img {
+            max-width: 50% !important
+        }
+
+
+    }
+</style>
+
+</html>
