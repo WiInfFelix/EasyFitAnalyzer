@@ -2,6 +2,7 @@ package app
 
 import (
 	"easyfitanalysis/analyser"
+	"easyfitanalysis/logger"
 	"easyfitanalysis/scraper"
 	"encoding/json"
 	"fmt"
@@ -17,9 +18,10 @@ type App struct {
 	currentAverages map[string]map[int]float32
 }
 
-func (a *App) RefreshCurrentAverages() {
+func (a *App) RefreshCurrentAverages(analysis map[string]map[int]float32) {
 	log.Println("Refreshing in-memory values...")
-	a.currentAverages = analyser.ReturnAnalysis()
+
+	a.currentAverages = analysis
 	return
 }
 
@@ -38,7 +40,7 @@ func (a *App) Init() {
 	a.Router = mux.NewRouter()
 	a.InitRoutes()
 	a.startSchedules()
-	a.RefreshCurrentAverages()
+	a.RefreshCurrentAverages(analyser.ReturnAnalysis())
 }
 
 func (a *App) Run(addr string) {
@@ -52,6 +54,7 @@ func (a *App) InitRoutes() {
 
 	a.Router.HandleFunc("/analysisResults", a.analysis).Methods("GET")
 	a.Router.PathPrefix("/").Handler(http.StripPrefix("", fs)).Methods("GET")
+	a.Router.Use(logger.LogRequestHandler)
 
 }
 
@@ -60,8 +63,18 @@ func (a *App) startSchedules() {
 
 	s := gocron.NewScheduler(time.UTC)
 
-	s.Cron("1,15,30,45 8-23 * * 1-5").Do(scraper.ScrapePage)
-	s.Cron("1,15,30,45 10-20 * * 0,6").Do(scraper.ScrapePage)
+	// build a channel to get return values and asign them to the cached map
+	// https://stackoverflow.com/questions/65432808/return-output-data-from-gocron-task
+	dataChan := make(chan interface{})
+
+	s.Cron("1,15,30,45 8-23 * * 1-5").Do(scraper.ScrapePage, dataChan)
+	s.Cron("1,15,30,45 10-20 * * 0,6").Do(scraper.ScrapePage, dataChan)
+
+	go func() {
+		for data := range dataChan {
+			a.RefreshCurrentAverages(data.(map[string]map[int]float32))
+		}
+	}()
 
 	s.StartAsync()
 	log.Println("Applied schedules")

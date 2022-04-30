@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"easyfitanalysis/analyser"
 	"encoding/csv"
 	"github.com/gocolly/colly"
 	"log"
@@ -16,7 +17,7 @@ type UsageEntry struct {
 }
 
 // ScrapePage Scrapes the page for the usage data
-func ScrapePage() {
+func ScrapePage(channel chan<- interface{}) {
 	url := "https://easyfitness.club/studio/easyfitness-luebeck/"
 	var ScrapedUsage int
 
@@ -57,6 +58,10 @@ func ScrapePage() {
 	if err != nil {
 		log.Panicf("There was an error writing the scraped data: %s", err)
 	}
+
+	analysis := analyser.ReturnAnalysis()
+
+	channel <- analysis
 
 	return
 }
