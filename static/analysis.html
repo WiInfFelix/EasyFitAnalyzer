@@ -69,7 +69,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
-        // const axios = require("axios")
         const label = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"]
 
         axios.get("/analysisResults").then(function (response) {
@@ -104,6 +103,12 @@
                                 display: true,
                                 text: value,
                             },
+                        },
+                        scales: {
+                                y : {
+                                    suggestedMin: 50,
+                                    suggestedMax: 100,
+                            }
                         }
                     },
                 }
