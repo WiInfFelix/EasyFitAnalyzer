@@ -95,12 +95,14 @@
                     datasets: [{
                         label: "Usage",
                         data: data[i],
-                        backgroundColor: 'green',
+                        fill: "start",
+                        backgroundColor: "rgba(65, 216, 67, 0.4)",
+                        tension: 0.3
                     }]
                 }
 
                 const config = {
-                    type: 'bar',
+                    type: 'line',
                     data: graph_data,
                     options: {
                         plugins: {
@@ -142,6 +144,10 @@
 
         img {
             max-width: 50% !important
+        }
+
+        body {
+            padding-bottom: 0.5em;
         }
 
 
